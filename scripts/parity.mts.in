@@ -1,21 +1,72 @@
 import assert from 'node:assert/strict';
-import {BashExecutionComponent as Original} from '__PI_SOURCE__/modes/interactive/components/bash-execution.ts';
-import {BashExecutionComponent as Fast} from './bash-fast.ts';
-import {initTheme} from '__PI_SOURCE__/modes/interactive/theme/theme.ts';
+import { BashExecutionComponent as Original } from '__PI_SOURCE__/modes/interactive/components/bash-execution.ts';
+import { BashExecutionComponent as Fast } from './bash-fast.ts';
+import { initTheme } from '__PI_SOURCE__/modes/interactive/theme/theme.ts';
+
 initTheme('dark');
-let seed=777;
-function rand(n){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed%n;}
-const atoms=['x','日本語','😀','\n','\r\n','\x1b[31mred\x1b[0m','\t','\u0301'];
-const ui={requestRender(){}};
-let comparisons=0;
-const cases=['','\n'.repeat(2000),'\n'.repeat(2001),'a'.repeat(51199),'a'.repeat(51200),'a'.repeat(51201),'a'.repeat(102399),'a'.repeat(102400),'a'.repeat(102401),'😀'.repeat(60000),'x'.repeat(160000)+'\n'+'y'.repeat(50000),'x\n'.repeat(80000)];
-for(let i=0;i<30;i++){let s='';for(let j=0;j<1500;j++)s+=atoms[rand(atoms.length)].repeat(rand(60));cases.push(s);}
-for(const [index,s] of cases.entries()){
- const a=new Original('parity',ui),b=new Fast('parity',ui);
- for(let i=0;i<s.length;){const length=1+rand(12000);const chunk=s.slice(i,i+length);i+=length;a.appendOutput(chunk);b.appendOutput(chunk);assert.equal(a.getOutput(),b.getOutput());}
- for(const status of [[0,false],[1,false],[undefined,true]]) {
-  a.setComplete(...status,{truncated:true,content:'tail'},'/tmp/parity-output.log');b.setComplete(...status,{truncated:true,content:'tail'},'/tmp/parity-output.log');
-  for(const expanded of [false,true]){a.setExpanded(expanded);b.setExpanded(expanded);for(const width of [20,80,160]) {a.invalidate();b.invalidate();assert.deepEqual(a.render(width),b.render(width),`case ${index} width ${width} expanded ${expanded}`);comparisons++;}}
- }
+let seed = 777;
+function rand(n) {
+  seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+  return seed % n;
 }
-console.log(JSON.stringify({cases:cases.length,comparisons,result:'all equal',seed:777}));
+const atoms = ['x', '日本語', '😀', '\n', '\r\n', '\x1b[31mred\x1b[0m', '\t', '\u0301'];
+const ui = { requestRender() {} };
+let comparisons = 0;
+const cases = [
+  '',
+  '\n'.repeat(2000),
+  '\n'.repeat(2001),
+  'a'.repeat(51199),
+  'a'.repeat(51200),
+  'a'.repeat(51201),
+  'a'.repeat(102399),
+  'a'.repeat(102400),
+  'a'.repeat(102401),
+  '😀'.repeat(60000),
+  'x'.repeat(160000) + '\n' + 'y'.repeat(50000),
+  'x\n'.repeat(80000),
+];
+for (let i = 0; i < 30; i++) {
+  let text = '';
+  for (let j = 0; j < 1500; j++) text += atoms[rand(atoms.length)].repeat(rand(60));
+  cases.push(text);
+}
+for (const [index, text] of cases.entries()) {
+  const original = new Original('parity', ui);
+  const prototype = new Fast('parity', ui);
+  for (let offset = 0; offset < text.length; ) {
+    const length = 1 + rand(12000);
+    const chunk = text.slice(offset, offset + length);
+    offset += length;
+    original.appendOutput(chunk);
+    prototype.appendOutput(chunk);
+    assert.equal(original.getOutput(), prototype.getOutput());
+  }
+  for (const status of [
+    [0, false],
+    [1, false],
+    [undefined, true],
+  ]) {
+    original.setComplete(...status, { truncated: true, content: 'tail' }, '/tmp/parity-output.log');
+    prototype.setComplete(
+      ...status,
+      { truncated: true, content: 'tail' },
+      '/tmp/parity-output.log',
+    );
+    for (const expanded of [false, true]) {
+      original.setExpanded(expanded);
+      prototype.setExpanded(expanded);
+      for (const width of [20, 80, 160]) {
+        original.invalidate();
+        prototype.invalidate();
+        assert.deepEqual(
+          original.render(width),
+          prototype.render(width),
+          `case ${index} width ${width} expanded ${expanded}`,
+        );
+        comparisons++;
+      }
+    }
+  }
+}
+console.log(JSON.stringify({ cases: cases.length, comparisons, result: 'all equal', seed: 777 }));

@@ -12,7 +12,8 @@ for (const mode of ['original', 'fast']) {
   summary[mode] = { runs: selected.length };
   for (const key of ['elapsedMs', 'callbackMs']) {
     assert(selected.every(row => Number.isFinite(row[key]) && row[key] >= 0));
-    summary[mode][`${key}Mean`] = selected.reduce((sum, row) => sum + row[key], 0) / selected.length;
+    summary[mode][`${key}Mean`] =
+      selected.reduce((sum, row) => sum + row[key], 0) / selected.length;
   }
 }
 console.log(JSON.stringify(summary, null, 2));

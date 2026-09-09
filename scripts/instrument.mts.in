@@ -4,7 +4,6 @@ import { InteractiveMode } from '__PI_SOURCE__/modes/interactive/interactive-mod
 import { BashExecutionComponent as Original } from '__PI_SOURCE__/modes/interactive/components/bash-execution.ts';
 import { BashExecutionComponent as Fast } from './bash-fast.ts';
 
-// Runtime-only instrumentation: no files in the pi checkout are patched.
 const mode = process.env.PI_BENCH_MODE;
 const init = InteractiveMode.prototype.init;
 InteractiveMode.prototype.init = async function (...args) {
@@ -40,10 +39,17 @@ Original.prototype.appendOutput = function (chunk) {
 Original.prototype.setComplete = function (...args) {
   const result = complete.apply(this, args);
   const row = stats.get(this);
-  appendFileSync(process.env.PI_BENCH_METRICS, JSON.stringify({
-    mode, run: process.env.PI_BENCH_RUN, ...row,
-    elapsedMs: row ? performance.now() - row.start : 0,
-    exitCode: args[0], cancelled: args[1], fullOutputPath: args[3],
-  }) + '\n');
+  appendFileSync(
+    process.env.PI_BENCH_METRICS,
+    JSON.stringify({
+      mode,
+      run: process.env.PI_BENCH_RUN,
+      ...row,
+      elapsedMs: row ? performance.now() - row.start : 0,
+      exitCode: args[0],
+      cancelled: args[1],
+      fullOutputPath: args[3],
+    }) + '\n',
+  );
   return result;
 };
