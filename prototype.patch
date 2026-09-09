@@ -1,0 +1,27 @@
+--- a/packages/coding-agent/src/modes/interactive/components/bash-execution.ts
++++ b/packages/coding-agent/src/modes/interactive/components/bash-execution.ts
+@@ -21,6 +21,7 @@
+ export class BashExecutionComponent extends Container {
+ 	private command: string;
+ 	private outputLines: string[] = [];
++	private displayTail = "";
+ 	private status: "running" | "complete" | "cancelled" | "error" = "running";
+ 	private exitCode: number | undefined = undefined;
+ 	private loader: Loader;
+@@ -82,6 +83,7 @@
+ 		// Note: binary data is already sanitized in tui-renderer.ts executeBashCommand
+ 		const clean = stripAnsi(chunk).replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+ 
++		this.displayTail = (this.displayTail + clean).slice(-2 * DEFAULT_MAX_BYTES);
+ 		// Append to output lines
+ 		const newLines = clean.split("\n");
+ 		if (this.outputLines.length > 0 && newLines.length > 0) {
+@@ -118,7 +120,7 @@
+ 
+ 	private updateDisplay(): void {
+ 		// Apply truncation for LLM context limits (same limits as bash tool)
+-		const fullOutput = this.outputLines.join("\n");
++		const fullOutput = this.displayTail;
+ 		const contextTruncation = truncateTail(fullOutput, {
+ 			maxLines: DEFAULT_MAX_LINES,
+ 			maxBytes: DEFAULT_MAX_BYTES,

@@ -1,0 +1,10 @@
+{"mode":"original","run":"1","start":1749.074333,"bytes":25743261,"chunks":393,"callbackMs":7417.651498000016,"maxCallbackMs":55.05237500000112,"elapsedMs":8151.488292,"exitCode":0,"cancelled":false}
+{"mode":"fast","run":"2","start":1558.700792,"bytes":25743261,"chunks":393,"callbackMs":118.99108300000194,"maxCallbackMs":1.0147080000001552,"elapsedMs":788.9888329999999,"exitCode":0,"cancelled":false}
+{"mode":"original","run":"3","start":1338.617667,"bytes":25743261,"chunks":393,"callbackMs":7403.5158740000015,"maxCallbackMs":69.183665999999,"elapsedMs":8121.876917,"exitCode":0,"cancelled":false}
+{"mode":"fast","run":"4","start":1345.985667,"bytes":25743261,"chunks":393,"callbackMs":130.6818779999992,"maxCallbackMs":5.203125,"elapsedMs":805.9857910000001,"exitCode":0,"cancelled":false}
+{"mode":"original","run":"5","start":1334.928125,"bytes":25743261,"chunks":393,"callbackMs":7368.993829999999,"maxCallbackMs":55.19050000000061,"elapsedMs":8091.261,"exitCode":0,"cancelled":false}
+{"mode":"fast","run":"6","start":1350.132417,"bytes":25743261,"chunks":393,"callbackMs":123.32046500000274,"maxCallbackMs":1.1672909999999774,"elapsedMs":805.206167,"exitCode":0,"cancelled":false}
+{"mode":"original","run":"7","start":1347.837625,"bytes":25743261,"chunks":393,"callbackMs":7438.208951999999,"maxCallbackMs":63.76733299999978,"elapsedMs":8150.466666,"exitCode":0,"cancelled":false}
+{"mode":"fast","run":"8","start":1349.209208,"bytes":25743261,"chunks":393,"callbackMs":124.25864100000308,"maxCallbackMs":3.6829579999998714,"elapsedMs":799.6704590000002,"exitCode":0,"cancelled":false}
+{"mode":"original","run":"9","start":1342.189542,"bytes":25743261,"chunks":393,"callbackMs":7386.93496499999,"maxCallbackMs":56.11424999999872,"elapsedMs":8109.779291999999,"exitCode":0,"cancelled":false}
+{"mode":"fast","run":"10","start":1341.847667,"bytes":25743261,"chunks":393,"callbackMs":124.66228800000249,"maxCallbackMs":1.1502500000001419,"elapsedMs":795.7980419999999,"exitCode":0,"cancelled":false}

@@ -1,0 +1,49 @@
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { performance } from 'node:perf_hooks';
+import { InteractiveMode } from '__PI_SOURCE__/modes/interactive/interactive-mode.ts';
+import { BashExecutionComponent as Original } from '__PI_SOURCE__/modes/interactive/components/bash-execution.ts';
+import { BashExecutionComponent as Fast } from './bash-fast.ts';
+
+// Runtime-only instrumentation: no files in the pi checkout are patched.
+const mode = process.env.PI_BENCH_MODE;
+const init = InteractiveMode.prototype.init;
+InteractiveMode.prototype.init = async function (...args) {
+  const result = await init.apply(this, args);
+  writeFileSync(process.env.PI_BENCH_READY, 'ready');
+  return result;
+};
+const stats = new WeakMap();
+const append = mode === 'fast' ? Fast.prototype.appendOutput : Original.prototype.appendOutput;
+const complete = Original.prototype.setComplete;
+if (mode === 'fast') {
+  Original.prototype.updateDisplay = function () {
+    this.displayTail ??= '';
+    return Fast.prototype.updateDisplay.call(this);
+  };
+}
+Original.prototype.appendOutput = function (chunk) {
+  this.displayTail ??= '';
+  let row = stats.get(this);
+  if (!row) {
+    row = { start: performance.now(), bytes: 0, chunks: 0, callbackMs: 0, maxCallbackMs: 0 };
+    stats.set(this, row);
+  }
+  const start = performance.now();
+  const result = append.call(this, chunk);
+  const elapsed = performance.now() - start;
+  row.bytes += Buffer.byteLength(chunk);
+  row.chunks++;
+  row.callbackMs += elapsed;
+  row.maxCallbackMs = Math.max(row.maxCallbackMs, elapsed);
+  return result;
+};
+Original.prototype.setComplete = function (...args) {
+  const result = complete.apply(this, args);
+  const row = stats.get(this);
+  appendFileSync(process.env.PI_BENCH_METRICS, JSON.stringify({
+    mode, run: process.env.PI_BENCH_RUN, ...row,
+    elapsedMs: row ? performance.now() - row.start : 0,
+    exitCode: args[0], cancelled: args[1], fullOutputPath: args[3],
+  }) + '\n');
+  return result;
+};
